@@ -1,27 +1,25 @@
-from enum import Enum
-
-
+import uvicorn
 from fastapi import FastAPI
-
-
-class ModelName(str, Enum):
-
-    alexnet = "alexnet"
-
-    resnet = "resnet"
-
-    lenet = "lenet"
+from Model import IrisModel, IrisSpecies
 
 
 app = FastAPI()
+model = IrisModel()
 
 
-@app.get("/models/{model_name}")
-async def get_model(model_name: ModelName):
-    if model_name == ModelName.alexnet:
-        return {"model_name": model_name, "message": "Deep Learning FTW!"}
+@app.post("/predict")
+def predict_species(iris: IrisSpecies):
+    data = iris.dict()
+    prediction, probability = model.predict_species(
+        data['sepal_length'], data['sepal_width'],
+        data['petal_length'], data['petal_width']
+    )
 
-    if model_name.value == "lenet":
-        return {"model_name": model_name, "message": "LeCNN all the images"}
+    return {
+        'prediction': prediction,
+        'probability': probability
+    }
 
-    return {"model_name": model_name, "message": "Have some residuals"}
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='127.0.0.1', port=8000)
