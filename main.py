@@ -14,7 +14,7 @@ app = FastAPI()
 
 
 @app.get("/")
-async def hello():
+async def index():
     return {"Hello": "Dev Data"}
 
 @app.post("/items/")
@@ -24,3 +24,12 @@ async def create_item(item: Item):
         price_with_tax = item.price + item.tax
         item_dict.update({"price_with_tax": price_with_tax})
     return item_dict
+
+
+
+@app.put("/items/{item_id}")
+async def create_item(item_id: int, item: Item, q: Optional[str] = None):
+    result = {"item_id": item_id, **item.dict()}
+    if q:
+        result.update({"q": q})
+    return result
